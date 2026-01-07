@@ -5,8 +5,18 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const placeOrder = async (req, res) => {
-  const frontend_url = process.env.FRONTEND_URL || 'http://localhost:5174';
+  const frontend_url = process.env.FRONTEND_URL || 'http://localhost:5173';
   try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('Stripe secret key not configured');
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: 'Payment provider not configured on server',
+        });
+    }
+
     const newOrder = new orderModel({
       userId: req.body.userId,
       items: req.body.items,
@@ -45,10 +55,11 @@ export const placeOrder = async (req, res) => {
       success_url: `${frontend_url}/verify?success=true&orderId=${newOrder._id}`,
       cancel_url: `${frontend_url}/verify?success=false&orderId=${newOrder._id}`,
     });
+    console.log('Stripe session created', session.id, session.url);
     res.json({ success: true, session_url: session.url });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: 'error' });
+    console.error('placeOrder error:', error);
+    res.status(500).json({ success: false, message: error.message || 'error' });
   }
 };
 

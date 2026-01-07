@@ -6,7 +6,9 @@ import { food_list as defaultFoodList } from '../assets/assets';
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  const url = 'https://pomodoro-yt-backend.onrender.com/';
+  // API base URL: prefer VITE_API_URL in dev, fallback to localhost:5000
+  const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const url = rawUrl.replace(/\/$/, '');
 
   const [cartItems, setCartItems] = useState({});
   const [token, setToken] = useState('');

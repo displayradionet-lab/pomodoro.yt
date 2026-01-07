@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StoreContext } from '../context/StoreContext';
-import axios from "axios";
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, food_list, cartItems, url } =
     useContext(StoreContext);
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [data, setData] = useState({
     firstName: '',
@@ -17,7 +17,7 @@ const PlaceOrder = () => {
     city: '',
     state: '',
     zip: '',
-    country: "",
+    country: '',
     phone: '',
   });
 
@@ -27,12 +27,14 @@ const PlaceOrder = () => {
     setData((data) => ({ ...data, [name]: value }));
   };
 
+  const [loading, setLoading] = useState(false);
+
   const placeOrder = async (event) => {
     event.preventDefault();
     let orderItems = [];
-    food_list.map((item) => {
+    food_list.forEach((item) => {
       if (cartItems[item._id] > 0) {
-        let itemInfo = item;
+        let itemInfo = { ...item };
         itemInfo['quantity'] = cartItems[item._id];
         orderItems.push(itemInfo);
       }
@@ -41,26 +43,44 @@ const PlaceOrder = () => {
       address: data,
       items: orderItems,
       amount: getTotalCartAmount() + 2,
-    }
-    let res = await axios.post(url+"/api/order/place", orderData, {headers: {token}});
-    if (res.data.success) {
-      const {session_url} = res.data;
-      window.location.replace(session_url);
-    } else {
-      alert('error')
+    };
+    try {
+      setLoading(true);
+      const endpoint = `${url}/api/order/place`;
+      let res = await axios.post(endpoint, orderData, {
+        headers: { token },
+      });
+      if (res.data.success) {
+        const { session_url } = res.data;
+        window.location.replace(session_url);
+      } else {
+        alert(res.data.message || 'Payment initialization failed');
+      }
+    } catch (error) {
+      console.error(
+        'placeOrder error:',
+        error.response || error.message || error
+      );
+      const status = error?.response?.status;
+      const data = error?.response?.data;
+      alert(
+        `Payment failed: ${status || ''} ${
+          data?.message || data || error.message
+        }`
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     if (!token) {
-      navigate('/cart')
+      navigate('/cart');
+    } else if (getTotalCartAmount() === 0) {
+      navigate('/cart');
     }
-     else if(getTotalCartAmount()===0)
-      {
-      navigate('/cart')
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[token])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   return (
     <form
@@ -156,7 +176,7 @@ const PlaceOrder = () => {
             className="border border-violet-300 bg-violet-200 mr-3 py-2 px-2 rounded-md outline-violet-300"
           />
         </div>
-        <div className="mb-4 w-full flex gap-3">         
+        <div className="mb-4 w-full flex gap-3">
           <input
             type="text"
             placeholder="Stato"
