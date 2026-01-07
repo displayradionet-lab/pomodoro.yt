@@ -5,7 +5,7 @@ import axios from 'axios';
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-  const url = 'https://pomodoro-yt-backend.onrender.com';
+  const url = 'https://pomodoro-yt-backend.onrender.com/';
 
   const [cartItems, setCartItems] = useState({});
   const [token, setToken] = useState('');

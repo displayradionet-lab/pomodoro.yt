@@ -4,6 +4,7 @@ import { StoreContext } from '../context/StoreContext';
 import axios from 'axios';
 
 const Verify = () => {
+    // eslint-disable-next-line no-unused-vars
     const [searchParams, setSearchParams] = useSearchParams();
     const success = searchParams.get('success');
     const orderId = searchParams.get('orderId');
