@@ -4,9 +4,9 @@ import { StoreContext } from '../context/StoreContext';
 import axios from 'axios';
 
 const LoginPopup = ({ setShowLogin }) => {
-  const { url, token, setToken } = useContext(StoreContext);
+  const { url, setToken } = useContext(StoreContext);
 
-  const [currState, setCurrState] = useState('Iscriviti');
+  const [currState, setCurrState] = useState('Accedi');
   console.log(currState);
   const [data, setData] = useState({
     name: '',
@@ -22,20 +22,25 @@ const LoginPopup = ({ setShowLogin }) => {
 
   const onLogin = async (event) => {
     event.preventDefault();
-    let newUrl = url;
-    if (currState === 'Iscriviti') {
-      newUrl += '/api/user/register';
-    } else {
-      newUrl += '/api/user/login';
-    }
+    try {
+      const base = (url || '').replace(/\/$/, '');
+      const endpoint =
+        currState === 'Iscriviti'
+          ? `${base}/api/user/register`
+          : `${base}/api/user/login`;
+      console.log('Auth endpoint', endpoint, 'payload', data);
 
-    const res = await axios.post(newUrl, data);
-    if (res.data.success) {
-      setToken(res.data.token);
-      localStorage.setItem('token', res.data.token);
-      setShowLogin(false);
-    } else {
-      alert(res.data.message);
+      const res = await axios.post(endpoint, data);
+      if (res.data.success) {
+        setToken(res.data.token);
+        localStorage.setItem('token', res.data.token);
+        setShowLogin(false);
+      } else {
+        alert(res.data.message || 'Errore');
+      }
+    } catch (err) {
+      console.error('Auth request error', err);
+      alert(err.response?.data?.message || err.message || 'Request failed');
     }
   };
 
@@ -101,10 +106,12 @@ const LoginPopup = ({ setShowLogin }) => {
         >
           {currState === 'Iscriviti' ? 'Iscriviti' : 'Accedi'}
         </button>
-        <div className="">
-          <input type="checkbox" required />
-          <p className="text-xs">Accetto i termini e le condizioni</p>
-        </div>
+        {currState === 'Iscriviti' && (
+          <div className="">
+            <input type="checkbox" required />
+            <p className="text-xs">Accetto i termini e le condizioni</p>
+          </div>
+        )}
         {currState === 'Accedi' ? (
           <p className="text-xs flex flex-wrap gap-1">
             Crea nuovo account?{' '}
