@@ -6,11 +6,23 @@ const FoodItem = ({ id, name, price, description, image }) => {
   const { cartItems, addToCart, removeFromCart, url } =
     useContext(StoreContext);
 
+  // resolve image source:
+  // - external URLs (start with http) -> use as-is
+  // - backend images (start with '/images/') -> prefix backend url
+  // - local bundled assets (other strings) -> use as-is
+  const resolvedImageSrc = (() => {
+    if (!image) return '';
+    if (image.startsWith('http')) return image;
+    if (image.startsWith('/images/'))
+      return `${url.replace(/\/$/, '')}${image}`;
+    return image; // local asset path
+  })();
+
   return (
     <div>
       <div className="relative">
         <img
-          src={image && image.startsWith('http') ? image : `${url}${image}`}
+          src={resolvedImageSrc}
           alt={name}
           className="rounded-[15px] w-70 h-70 fade-in"
         />

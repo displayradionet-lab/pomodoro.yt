@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import { food_list as defaultFoodList } from '../assets/assets';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const StoreContext = createContext(null);
@@ -58,8 +59,18 @@ const StoreContextProvider = (props) => {
   };
 
   const fetchFoodList = async () => {
-    const res = await axios.get(url + '/api/food/list');
-    setFoodList(res.data.data);
+    try {
+      const res = await axios.get(url + '/api/food/list');
+      if (res?.data?.success && Array.isArray(res.data.data)) {
+        setFoodList(res.data.data);
+      } else {
+        console.warn('API food list not available, falling back to local data');
+        setFoodList(defaultFoodList);
+      }
+    } catch (error) {
+      console.error('Failed to fetch food list:', error.message || error);
+      setFoodList(defaultFoodList);
+    }
   };
 
   useEffect(() => {
