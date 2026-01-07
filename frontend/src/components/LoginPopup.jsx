@@ -1,11 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { assets } from '../assets/assets';
 import { StoreContext } from '../context/StoreContext';
-import axios from "axios";
+import axios from 'axios';
 
 const LoginPopup = ({ setShowLogin }) => {
-
-  const {url, token, setToken} = useContext(StoreContext)
+  const { url, token, setToken } = useContext(StoreContext);
 
   const [currState, setCurrState] = useState('Accedi');
   console.log(currState);
@@ -24,10 +23,10 @@ const LoginPopup = ({ setShowLogin }) => {
   const onLogin = async (event) => {
     event.preventDefault();
     let newUrl = url;
-    if (currState === "Login") {
-      newUrl += "/api/user/register"
+    if (currState === 'Iscriviti') {
+      newUrl += '/api/user/register';
     } else {
-      newUrl += "/api/user/login"
+      newUrl += '/api/user/login';
     }
 
     const res = await axios.post(newUrl, data);
@@ -36,13 +35,14 @@ const LoginPopup = ({ setShowLogin }) => {
       localStorage.setItem('token', res.data.token);
       setShowLogin(false);
     } else {
-      alert(res.data.message)
+      alert(res.data.message);
     }
-  }  
+  };
 
   return (
     <div className="fixed inset-0 z-10 flex items-center justify-center bg-teal-900/80 p-4">
-      <form onSubmit={onLogin}
+      <form
+        onSubmit={onLogin}
         className="w-full max-w-sm bg-white text-teal-500 flex flex-col gap-5 p-6 
         md:p-10 rounded-lg relative"
       >
@@ -66,7 +66,7 @@ const LoginPopup = ({ setShowLogin }) => {
           ) : (
             <input
               type="text"
-              name='name'
+              name="name"
               placeholder="Il tuo nome"
               required
               onChange={onChangeHandler}
@@ -77,7 +77,7 @@ const LoginPopup = ({ setShowLogin }) => {
 
           <input
             type="email"
-            name='email'
+            name="email"
             placeholder="La tua Email"
             required
             onChange={onChangeHandler}
@@ -86,7 +86,7 @@ const LoginPopup = ({ setShowLogin }) => {
           />
           <input
             type="password"
-            name='password'
+            name="password"
             placeholder="La tua Password"
             required
             onChange={onChangeHandler}
@@ -94,7 +94,8 @@ const LoginPopup = ({ setShowLogin }) => {
             className=" border-2 border-green-500 text-teal-700 rounded p-2"
           />
         </div>
-        <button type='submit'
+        <button
+          type="submit"
           className="bg-teal-500 py-2 text-sm rounded-md text-white 
         hover:bg-teal-600 transition-colors"
         >
